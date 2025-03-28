@@ -1,0 +1,71 @@
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maxdown Editor</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
+        textarea { width: 100%; height: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
+        .preview { border: 1px solid #ddd; padding: 15px; margin-top: 10px; background: #fff; border-radius: 5px; min-height: 100px; }
+        pre, code { background: #f4f4f4; padding: 5px; border-radius: 5px; overflow-x: auto; font-family: monospace; }
+        blockquote { border-left: 5px solid #888; padding-left: 10px; color: #555; font-style: italic; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        table, th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        hr { border: 0; height: 1px; background: #bbb; margin: 10px 0; }
+        img { max-width: 100%; height: auto; border-radius: 5px; }
+        ul, ol { padding-left: 20px; }
+    </style>
+</head>
+<body>
+    <h2>Maxdown Editor</h2>
+    <textarea id="markdownInput" placeholder="Write Markdown here..."></textarea>
+    <div class="preview" id="preview"></div>
+    <script>
+        function escapeHtml(text) {
+            return text.replace(/[&<>"]/g, function(tag) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[tag] || tag;
+            });
+        }function parseMarkdown(text) {
+        text = escapeHtml(text);
+        
+        text = text.replace(/^###### (.+)$/gm, "<h6>$1</h6>")
+                   .replace(/^##### (.+)$/gm, "<h5>$1</h5>")
+                   .replace(/^#### (.+)$/gm, "<h4>$1</h4>")
+                   .replace(/^### (.+)$/gm, "<h3>$1</h3>")
+                   .replace(/^## (.+)$/gm, "<h2>$1</h2>")
+                   .replace(/^# (.+)$/gm, "<h1>$1</h1>")
+                   .replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
+                   .replace(/\*(.+?)\*/g, "<i>$1</i>")
+                   .replace(/_(.+?)_/g, "<u>$1</u>")
+                   .replace(/~~(.+?)~~/g, "<s>$1</s>")
+                   .replace(/```([\s\S]+?)```/g, "<pre><code>$1</code></pre>")
+                   .replace(/\`([^`]+)\`/g, "<code>$1</code>")
+                   .replace(/\> (.+)/g, "<blockquote>$1</blockquote>")
+                   .replace(/!(.*?)(.*?)/g, '<img src="$2" alt="$1">')
+                   .replace(/(.*?)(.*?)/g, '<a href="$2" target="_blank">$1</a>')
+                   .replace(/---/g, "<hr>")
+                   .replace(/:smile:/g, "😃").replace(/:heart:/g, "❤️")
+                   .replace(/:star:/g, "⭐").replace(/:fire:/g, "🔥")
+                   .replace(/:thumbsup:/g, "👍").replace(/:rocket:/g, "🚀")
+                   .replace(/:check:/g, "✅").replace(/:cross:/g, "❌")
+                   .replace(/:clap:/g, "👏").replace(/:joy:/g, "😂")
+                   .replace(/:thinking:/g, "🤔").replace(/:eyes:/g, "👀")
+                   .replace(/:bulb:/g, "💡").replace(/:money:/g, "💰");
+        
+        // Lists
+        text = text.replace(/(?:^|\n)([-*]) (.+)/g, '<ul><li>$2</li></ul>');
+        text = text.replace(/(?:^|\n)(\d+\.) (.+)/g, '<ol><li>$2</li></ol>');
+        text = text.replace(/<\/ul>\s*<ul>/g, '').replace(/<\/ol>\s*<ol>/g, '');
+        
+        // Line breaks
+        text = text.replace(/\n/g, "<br>");
+        return text;
+    }
+
+    document.getElementById("markdownInput").addEventListener("input", function() {
+        document.getElementById("preview").innerHTML = parseMarkdown(this.value);
+    });
+</script>
+
+</body>
+</html>
